@@ -216,13 +216,29 @@ const SkillSection = ({ title, skills, icon: Icon }) => (
 );
 
 export default function App() {
-  const [darkMode, setDarkMode] = useState(false);
+  // --- UPDATED LOGIC FOR DARK MODE ---
+
+  // 1. Initialize state from localStorage if available
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("theme");
+      return savedTheme === "dark";
+    }
+    return false;
+  });
+
   const [scrolled, setScrolled] = useState(false);
 
-  // Handle dark mode toggle
-  const toggleTheme = () => {
-    setDarkMode(!darkMode);
-  };
+  // 2. Apply the 'dark' class to the HTML element and save to localStorage
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
 
   // Handle scroll effect for navbar
   useEffect(() => {
@@ -233,263 +249,262 @@ export default function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const toggleTheme = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
-    <div
-      className={`${
-        darkMode ? "dark" : ""
-      } font-sans min-h-screen transition-colors duration-300`}
-    >
-      <div className="bg-gray-50 dark:bg-slate-900 min-h-screen text-gray-800 dark:text-gray-100 transition-colors duration-300">
-        {/* --- Navbar --- */}
-        <nav
-          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-            scrolled
-              ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-md py-3"
-              : "bg-transparent py-5"
-          }`}
-        >
-          <div className="container mx-auto px-6 flex justify-between items-center">
-            <h1 className="text-xl font-bold tracking-tight">
-              Sandip<span className="text-blue-600">.Dev</span>
-            </h1>
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-slate-700 transition-colors"
-              aria-label="Toggle Dark Mode"
-            >
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-          </div>
-        </nav>
+    // Removed the inline 'dark' class logic here because we are applying it to <html> now
+    <div className="font-sans min-h-screen transition-colors duration-300 bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-gray-100">
+      {/* --- Navbar --- */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-md py-3"
+            : "bg-transparent py-5"
+        }`}
+      >
+        <div className="container mx-auto px-6 flex justify-between items-center">
+          <h1 className="text-xl font-bold tracking-tight">
+            Sandip<span className="text-blue-600">.Dev</span>
+          </h1>
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-full bg-gray-200 dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-slate-700 transition-colors"
+            aria-label="Toggle Dark Mode"
+          >
+            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+        </div>
+      </nav>
 
-        {/* --- Hero Section --- */}
-        <header className="relative pt-32 pb-20 px-6 overflow-hidden">
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl"></div>
+      {/* --- Hero Section --- */}
+      <header className="relative pt-32 pb-20 px-6 overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl"></div>
 
-          <div className="container mx-auto max-w-5xl">
-            <div className="flex flex-col md:flex-row items-center gap-12">
-              <div className="flex-1 text-center md:text-left z-10 animate-fade-in-up">
-                <div className="inline-block px-4 py-1.5 mb-4 text-sm font-semibold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                  Available for Hire
-                </div>
-                <h1 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight">
-                  Hi, I'm{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                    {resumeData.personalInfo.name}
-                  </span>
-                </h1>
-                <h2 className="text-2xl md:text-3xl text-gray-600 dark:text-gray-300 mb-6 font-light">
-                  {resumeData.personalInfo.title}
-                </h2>
-                <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto md:mx-0 leading-relaxed">
-                  {resumeData.personalInfo.objective}
-                </p>
-
-                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                  <a
-                    href={`mailto:${resumeData.personalInfo.email}`}
-                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-lg hover:shadow-blue-500/30 transition-all flex items-center gap-2"
-                  >
-                    <Mail size={18} /> Contact Me
-                  </a>
-                  <a
-                    href={resumeData.personalInfo.github}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-6 py-3 bg-white dark:bg-slate-800 text-gray-800 dark:text-white border border-gray-200 dark:border-slate-700 rounded-lg font-medium hover:shadow-md transition-all flex items-center gap-2"
-                  >
-                    <Github size={18} /> GitHub
-                  </a>
-                  <a
-                    href={resumeData.personalInfo.linkedin}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-6 py-3 bg-white dark:bg-slate-800 text-gray-800 dark:text-white border border-gray-200 dark:border-slate-700 rounded-lg font-medium hover:shadow-md transition-all flex items-center gap-2"
-                  >
-                    <Linkedin size={18} /> LinkedIn
-                  </a>
-                </div>
+        <div className="container mx-auto max-w-5xl">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="flex-1 text-center md:text-left z-10 animate-fade-in-up">
+              <div className="inline-block px-4 py-1.5 mb-4 text-sm font-semibold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                Available for Hire
               </div>
-
-              {/* Decorative Code Block / Visual */}
-              <div className="hidden md:block w-80 h-80 relative group cursor-default">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl rotate-6 opacity-20 group-hover:rotate-12 transition-transform duration-500"></div>
-                <div className="absolute inset-0 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 flex flex-col p-6 rotate-0 group-hover:-rotate-2 transition-transform duration-500">
-                  <div className="flex gap-2 mb-4">
-                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  </div>
-                  <div className="flex-1 font-mono text-sm text-gray-600 dark:text-gray-300 space-y-2">
-                    <p>
-                      <span className="text-purple-600">const</span>{" "}
-                      <span className="text-blue-600">developer</span> ={" "}
-                      <span className="text-yellow-600">{"{"}</span>
-                    </p>
-                    <p className="pl-4">
-                      name:{" "}
-                      <span className="text-green-600">
-                        "{resumeData.personalInfo.name}"
-                      </span>
-                      ,
-                    </p>
-                    <p className="pl-4">
-                      skills: [<span className="text-green-600">"React"</span>,{" "}
-                      <span className="text-green-600">"Blockchain"</span>],
-                    </p>
-                    <p className="pl-4">
-                      hardWorker: <span className="text-blue-600">true</span>,
-                    </p>
-                    <p className="pl-4">
-                      openToWork: <span className="text-blue-600">true</span>
-                    </p>
-                    <p>
-                      <span className="text-yellow-600">{"}"}</span>;
-                    </p>
-                  </div>
-                  <div className="mt-auto pt-4 border-t border-gray-100 dark:border-slate-700">
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Terminal size={14} />
-                      <span>Compiling...</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-gray-400">
-              <ChevronDown size={24} />
-            </div>
-          </div>
-        </header>
-
-        {/* --- Main Content --- */}
-        <main className="container mx-auto px-6 py-12 max-w-5xl space-y-24">
-          {/* Projects Section */}
-          <section id="projects">
-            <SectionTitle icon={Briefcase} title="Featured Projects" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {resumeData.projects.map((project, index) => (
-                <ProjectCard key={index} project={project} />
-              ))}
-            </div>
-          </section>
-
-          {/* Education & Skills Split */}
-          <section className="grid md:grid-cols-2 gap-12">
-            {/* Education Column */}
-            <div id="education">
-              <SectionTitle icon={GraduationCap} title="Education" />
-              <div className="bg-white dark:bg-slate-800/50 p-6 rounded-2xl border border-gray-100 dark:border-slate-800">
-                <div className="mt-2">
-                  {resumeData.education.map((item, index) => (
-                    <EducationItem
-                      key={index}
-                      item={item}
-                      isLast={index === resumeData.education.length - 1}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Skills Column */}
-            <div id="skills">
-              <SectionTitle icon={Cpu} title="Technical Skills" />
-              <Card className="p-6 h-full">
-                <div className="space-y-6">
-                  <SkillSection
-                    title="Languages"
-                    icon={Code}
-                    skills={resumeData.skills.languages}
-                  />
-                  <SkillSection
-                    title="Tools & Frameworks"
-                    icon={Terminal}
-                    skills={resumeData.skills.tools}
-                  />
-                  <SkillSection
-                    title="Operating Systems"
-                    icon={Database}
-                    skills={resumeData.skills.os}
-                  />
-                  <SkillSection
-                    title="Soft Skills"
-                    icon={User}
-                    skills={resumeData.skills.softSkills}
-                  />
-                </div>
-              </Card>
-            </div>
-          </section>
-
-          {/* Contact Banner */}
-          <section className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-2xl p-8 md:p-12 text-center text-white shadow-xl relative overflow-hidden">
-            <div className="relative z-10">
-              <h2 className="text-3xl font-bold mb-4">Ready to Collaborate?</h2>
-              <p className="text-blue-100 mb-8 max-w-xl mx-auto">
-                I'm always open to discussing product design work, blockchain
-                projects, or partnership opportunities.
+              <h1 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight">
+                Hi, I'm{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                  {resumeData.personalInfo.name}
+                </span>
+              </h1>
+              <h2 className="text-2xl md:text-3xl text-gray-600 dark:text-gray-300 mb-6 font-light">
+                {resumeData.personalInfo.title}
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto md:mx-0 leading-relaxed">
+                {resumeData.personalInfo.objective}
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+
+              <div className="flex flex-wrap gap-4 justify-center md:justify-start">
                 <a
                   href={`mailto:${resumeData.personalInfo.email}`}
-                  className="px-8 py-3 bg-white text-blue-600 rounded-full font-bold shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all transform hover:-translate-y-1"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-lg hover:shadow-blue-500/30 transition-all flex items-center gap-2"
                 >
-                  Send an Email
+                  <Mail size={18} /> Contact Me
                 </a>
                 <a
-                  href={`tel:${resumeData.personalInfo.phone}`}
-                  className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white/10 transition-all flex items-center gap-2"
+                  href={resumeData.personalInfo.github}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-6 py-3 bg-white dark:bg-slate-800 text-gray-800 dark:text-white border border-gray-200 dark:border-slate-700 rounded-lg font-medium hover:shadow-md transition-all flex items-center gap-2"
                 >
-                  <Phone size={18} /> {resumeData.personalInfo.phone}
+                  <Github size={18} /> GitHub
+                </a>
+                <a
+                  href={resumeData.personalInfo.linkedin}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-6 py-3 bg-white dark:bg-slate-800 text-gray-800 dark:text-white border border-gray-200 dark:border-slate-700 rounded-lg font-medium hover:shadow-md transition-all flex items-center gap-2"
+                >
+                  <Linkedin size={18} /> LinkedIn
                 </a>
               </div>
             </div>
 
-            {/* Background circles */}
-            <div className="absolute top-0 left-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-0 right-0 w-80 h-80 bg-white opacity-5 rounded-full translate-x-1/4 translate-y-1/4"></div>
-          </section>
-        </main>
-
-        {/* --- Footer --- */}
-        <footer className="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 py-12 mt-12 transition-colors duration-300">
-          <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0 text-center md:text-left">
-              <p className="font-bold text-gray-800 dark:text-white text-lg">
-                Sandip Ghosh
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                © {new Date().getFullYear()} All rights reserved.
-              </p>
+            {/* Decorative Code Block / Visual */}
+            <div className="hidden md:block w-80 h-80 relative group cursor-default">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl rotate-6 opacity-20 group-hover:rotate-12 transition-transform duration-500"></div>
+              <div className="absolute inset-0 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 flex flex-col p-6 rotate-0 group-hover:-rotate-2 transition-transform duration-500">
+                <div className="flex gap-2 mb-4">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                </div>
+                <div className="flex-1 font-mono text-sm text-gray-600 dark:text-gray-300 space-y-2">
+                  <p>
+                    <span className="text-purple-600">const</span>{" "}
+                    <span className="text-blue-600">developer</span> ={" "}
+                    <span className="text-yellow-600">{"{"}</span>
+                  </p>
+                  <p className="pl-4">
+                    name:{" "}
+                    <span className="text-green-600">
+                      "{resumeData.personalInfo.name}"
+                    </span>
+                    ,
+                  </p>
+                  <p className="pl-4">
+                    skills: [<span className="text-green-600">"React"</span>,{" "}
+                    <span className="text-green-600">"Blockchain"</span>],
+                  </p>
+                  <p className="pl-4">
+                    hardWorker: <span className="text-blue-600">true</span>,
+                  </p>
+                  <p className="pl-4">
+                    openToWork: <span className="text-blue-600">true</span>
+                  </p>
+                  <p>
+                    <span className="text-yellow-600">{"}"}</span>;
+                  </p>
+                </div>
+                <div className="mt-auto pt-4 border-t border-gray-100 dark:border-slate-700">
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <Terminal size={14} />
+                    <span>Compiling...</span>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <div className="flex gap-6">
-              <a
-                href={resumeData.personalInfo.github}
-                className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                <Github size={20} />
-              </a>
-              <a
-                href={resumeData.personalInfo.linkedin}
-                className="text-gray-400 hover:text-blue-600 transition-colors"
-              >
-                <Linkedin size={20} />
-              </a>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-gray-400">
+            <ChevronDown size={24} />
+          </div>
+        </div>
+      </header>
+
+      {/* --- Main Content --- */}
+      <main className="container mx-auto px-6 py-12 max-w-5xl space-y-24">
+        {/* Projects Section */}
+        <section id="projects">
+          <SectionTitle icon={Briefcase} title="Featured Projects" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {resumeData.projects.map((project, index) => (
+              <ProjectCard key={index} project={project} />
+            ))}
+          </div>
+        </section>
+
+        {/* Education & Skills Split */}
+        <section className="grid md:grid-cols-2 gap-12">
+          {/* Education Column */}
+          <div id="education">
+            <SectionTitle icon={GraduationCap} title="Education" />
+            <div className="bg-white dark:bg-slate-800/50 p-6 rounded-2xl border border-gray-100 dark:border-slate-800">
+              <div className="mt-2">
+                {resumeData.education.map((item, index) => (
+                  <EducationItem
+                    key={index}
+                    item={item}
+                    isLast={index === resumeData.education.length - 1}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Skills Column */}
+          <div id="skills">
+            <SectionTitle icon={Cpu} title="Technical Skills" />
+            <Card className="p-6 h-full">
+              <div className="space-y-6">
+                <SkillSection
+                  title="Languages"
+                  icon={Code}
+                  skills={resumeData.skills.languages}
+                />
+                <SkillSection
+                  title="Tools & Frameworks"
+                  icon={Terminal}
+                  skills={resumeData.skills.tools}
+                />
+                <SkillSection
+                  title="Operating Systems"
+                  icon={Database}
+                  skills={resumeData.skills.os}
+                />
+                <SkillSection
+                  title="Soft Skills"
+                  icon={User}
+                  skills={resumeData.skills.softSkills}
+                />
+              </div>
+            </Card>
+          </div>
+        </section>
+
+        {/* Contact Banner */}
+        <section className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-2xl p-8 md:p-12 text-center text-white shadow-xl relative overflow-hidden">
+          <div className="relative z-10">
+            <h2 className="text-3xl font-bold mb-4">Ready to Collaborate?</h2>
+            <p className="text-blue-100 mb-8 max-w-xl mx-auto">
+              I'm always open to discussing product design work, blockchain
+              projects, or partnership opportunities.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
                 href={`mailto:${resumeData.personalInfo.email}`}
-                className="text-gray-400 hover:text-red-500 transition-colors"
+                className="px-8 py-3 bg-white text-blue-600 rounded-full font-bold shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all transform hover:-translate-y-1"
               >
-                <Mail size={20} />
+                Send an Email
+              </a>
+              <a
+                href={`tel:${resumeData.personalInfo.phone}`}
+                className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white/10 transition-all flex items-center gap-2"
+              >
+                <Phone size={18} /> {resumeData.personalInfo.phone}
               </a>
             </div>
           </div>
-        </footer>
-      </div>
+
+          {/* Background circles */}
+          <div className="absolute top-0 left-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-80 h-80 bg-white opacity-5 rounded-full translate-x-1/4 translate-y-1/4"></div>
+        </section>
+      </main>
+
+      {/* --- Footer --- */}
+      <footer className="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 py-12 mt-12 transition-colors duration-300">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
+          <div className="mb-4 md:mb-0 text-center md:text-left">
+            <p className="font-bold text-gray-800 dark:text-white text-lg">
+              Sandip Ghosh
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              © {new Date().getFullYear()} All rights reserved.
+            </p>
+          </div>
+
+          <div className="flex gap-6">
+            <a
+              href={resumeData.personalInfo.github}
+              className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              <Github size={20} />
+            </a>
+            <a
+              href={resumeData.personalInfo.linkedin}
+              className="text-gray-400 hover:text-blue-600 transition-colors"
+            >
+              <Linkedin size={20} />
+            </a>
+            <a
+              href={`mailto:${resumeData.personalInfo.email}`}
+              className="text-gray-400 hover:text-red-500 transition-colors"
+            >
+              <Mail size={20} />
+            </a>
+          </div>
+        </div>
+      </footer>
 
       {/* CSS for custom entrance animation since we are using Tailwind */}
       <style jsx>{`
