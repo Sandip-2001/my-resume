@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* This helps prevent the white flash for users who have 
+   System Dark Mode enabled by setting the background 
+   color before React even loads.
+*/
+@layer base {
+  body {
+    @apply transition-colors duration-300;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    background-color: #0f172a; /* matches slate-900 */
+  }
+}
